@@ -26,6 +26,7 @@ class SMABacktest(VecBacktest):
         self.results_df['positions'] = np.where(
             self.results_df['SMA_%d' % self.SMA_short] > self.results_df['SMA_%d' % self.SMA_long], 1, -1)
         self.results_df['positions'] = self.results_df['positions'].ffill().fillna(0)
+
     def run_strategy(self, SMA_short, SMA_long):
 
         self.set_parameters(SMA_short=SMA_short, SMA_long=SMA_long)
@@ -70,7 +71,6 @@ if __name__ == "__main__":
                               adjust_type="post")
 
     # data = stock_data.rename(columns={'close': 'price'})
-
 
     smabacktest = SMABacktest(price_info=stock_data, returns_tupe="log")
     # smabacktest.output_results()

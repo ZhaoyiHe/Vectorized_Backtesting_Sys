@@ -13,7 +13,7 @@ class MRBacktest(VecBacktest):
         if SMA is not None:
             self.SMA = SMA
             self.results_df['SMA_%d' % SMA] = IndicatorCalculator.SMA_generator(prices=self.price_info['close'],
-                                                                                      period=SMA)
+                                                                                period=SMA)
             # self.results_df['SMA_%d'%SMA_short] = self.results_df['returns'].rolling(SMA_short).mean()
 
         if threshold is not None:
@@ -22,15 +22,15 @@ class MRBacktest(VecBacktest):
             # self.results_df['SMA_%d' % SMA_long] = self.results_df['returns'].rolling(SMA_long).mean()
 
     def strategy_generator(self):
-        self.results_df['distance'] = self.price_info['close']-self.results_df['SMA_%d' % self.SMA]
+        self.results_df['distance'] = self.price_info['close'] - self.results_df['SMA_%d' % self.SMA]
         self.results_df.dropna(inplace=True)
         self.results_df['positions'] = np.where(self.results_df['distance'] > self.threshold, -1, np.nan)
-        self.results_df['positions'] = np.where(self.results_df['distance'] < -self.threshold, 1, self.results_df['positions'])
-        self.results_df['positions'] = np.where(self.results_df['distance'].shift(1) * self.results_df['distance'] <0, 0, self.results_df['positions'])
+        self.results_df['positions'] = np.where(self.results_df['distance'] < -self.threshold, 1,
+                                                self.results_df['positions'])
+        self.results_df['positions'] = np.where(self.results_df['distance'].shift(1) * self.results_df['distance'] < 0,
+                                                0, self.results_df['positions'])
 
         self.results_df['positions'] = self.results_df['positions'].ffill().fillna(0)
-
-
 
     def run_strategy(self, SMA, threshold):
 
@@ -41,7 +41,7 @@ class MRBacktest(VecBacktest):
 
     def update_and_run(self, SMA_threshold_tuple):
 
-        self.run_strategy(int( SMA_threshold_tuple[0]), SMA_threshold_tuple[1])
+        self.run_strategy(int(SMA_threshold_tuple[0]), SMA_threshold_tuple[1])
         return -self.total_strategy_return  ######
 
     def optimize_parameters(self, SMA_range, threshold_range):
@@ -69,7 +69,6 @@ if __name__ == "__main__":
 
     mrbacktest = MRBacktest(price_info=stock_data, returns_tupe="log")
     # smabacktest.output_results()
-    best_params = mrbacktest.optimize_parameters((10,80, 5), (2, 10, 0.5))[0]
+    best_params = mrbacktest.optimize_parameters((10, 80, 5), (2, 10, 0.5))[0]
     mrbacktest.run_strategy(SMA=int(best_params[0]), threshold=best_params[1])
     mrbacktest.output_results()
-

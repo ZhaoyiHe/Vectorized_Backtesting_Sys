@@ -2,7 +2,6 @@ import numpy as np
 import rqdatac as rq
 from scipy.optimize import fminbound
 
-from Indicators import IndicatorClass
 from VectorizedBacktesting import VecBacktest
 
 
@@ -16,8 +15,8 @@ class MOMBacktest(VecBacktest):
         self.results_df['positions'] = np.sign(self.results_df['returns'].rolling(self.momentum).mean())
 
         self.results_df['positions'] = self.results_df['positions'].ffill().fillna(0)
-    def run_strategy(self, momentum):
 
+    def run_strategy(self, momentum):
         self.set_parameters(momentum=int(momentum))
         self.strategy_generator()
         self.strategy_return_generator()
@@ -37,7 +36,7 @@ class MOMBacktest(VecBacktest):
 
         :return:
         """
-        opt = fminbound(self.update_and_run,  momentum_lb,momentum_ub)
+        opt = fminbound(self.update_and_run, momentum_lb, momentum_ub)
         print(opt)
         return opt, -self.update_and_run(opt)
 
@@ -55,6 +54,6 @@ if __name__ == "__main__":
 
     mombacktest = MOMBacktest(price_info=stock_data, returns_tupe="log")
     # smabacktest.output_results()
-    best_params = mombacktest.optimize_parameters(1,20)[0]
+    best_params = mombacktest.optimize_parameters(1, 20)[0]
     mombacktest.run_strategy(best_params)
     mombacktest.output_results()

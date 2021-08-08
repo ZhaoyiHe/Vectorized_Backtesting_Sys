@@ -44,7 +44,7 @@ class StatisticsClass(object):
         cov = np.cov(returns, benchmark_returns)[0, 1]
         var = np.var(benchmark_returns)
         beta = cov / var
-        alpha =( returns - (risk_free_rate + beta * (benchmark_returns - risk_free_rate)))[-1]
+        alpha = (returns - (risk_free_rate + beta * (benchmark_returns - risk_free_rate)))[-1]
         return [alpha, beta]
 
     def calculate_drawdown(self, returns, window_size=252, rolling_drawdown_duration=None, return_type="normal"):
@@ -56,14 +56,14 @@ class StatisticsClass(object):
         returns.dropna(inplace=True)
         returns = pd.DataFrame(returns)
         returns['roll_max'] = returns['strategy'].rolling(window=window_size).max()
-        returns= returns.fillna(value = returns.strategy[0])
-        #returns.dropna(inplace=True)
+        returns = returns.fillna(value=returns.strategy[0])
+        # returns.dropna(inplace=True)
         drawdown = 1 - returns.strategy / returns.roll_max
         if not rolling_drawdown_duration:
             maxDD = drawdown.max()
         elif rolling_drawdown_duration:
             maxDD = drawdown.rolling(window=rolling_drawdown_duration).max()
-        #drawdown.dropna(inplace=True)
+        # drawdown.dropna(inplace=True)
         temp = drawdown[drawdown == 0]
         durations = (temp.index[1:].to_pydatetime() - temp.index[:-1].to_pydatetime())
         max_duration = durations.max()
@@ -85,22 +85,23 @@ class StatisticsClass(object):
         coef, p = scipy.stats.pearsonr(comb_df.iloc[:, 0], comb_df.iloc[:, 1])
         return [coef, p]
 
-    def calculate_metrics(self, returns,benchmark_returns=None, return_type="normal"):
+    def calculate_metrics(self, returns, benchmark_returns=None, return_type="normal"):
 
         metrics = {}
 
         # returns
-        metrics['daily_return'] = "%f%%" % (self.calculate_daily_mean_std(returns=returns, return_type=return_type)[0]*100)  # Calculate average daily
+        metrics['daily_return'] = "%f%%" % (self.calculate_daily_mean_std(returns=returns, return_type=return_type)[
+                                                0] * 100)  # Calculate average daily
         # return
-        metrics['annual_return'] = "%f%%" % (self.calculate_annualized_mean_std(returns=returns, return_type=return_type)[0]*100) 
+        metrics['annual_return'] = "%f%%" % (
+                self.calculate_annualized_mean_std(returns=returns, return_type=return_type)[0] * 100)
 
         # Volatility
         metrics['daily_volatility'] = self.calculate_daily_mean_std(returns, return_type)[1]
         metrics['annualized_volatility'] = self.calculate_annualized_mean_std(returns, return_type)[1]
 
-
         # Drawdown
-        maxDD = self.calculate_drawdown(returns = returns, return_type=return_type)[0]
+        maxDD = self.calculate_drawdown(returns=returns, return_type=return_type)[0]
         metrics['max_drawdown'] = "%f%%" % (100 * maxDD)  # Calculate maximum drawdown
         # Risk and variance
         metrics[r"95%_VaR"] = self.calculate_VaR(returns, return_type)[r"95%_VaR"]
@@ -108,13 +109,14 @@ class StatisticsClass(object):
         metrics['sharpe_ratio'] = self.calculate_sharpe_ratio(returns=returns,
                                                               return_type=return_type)  # Calculate Sharpe ratio
         metrics['calmar_ratio'] = self.calculate_calmar_ratio(returns=returns,
-                                                              return_type=return_type,max_drawdown=maxDD)  # Calculate Sharpe ratio
+                                                              return_type=return_type,
+                                                              max_drawdown=maxDD)  # Calculate Sharpe ratio
         # Risk and variance with respect to benchmark
         if benchmark_returns is not None:
             # returns
             metrics['benchmark_daily_return'] = "%f%%" % (
-                        self.calculate_daily_mean_std(returns=benchmark_returns, return_type=return_type)[
-                            0] * 100)  # Calculate average daily
+                    self.calculate_daily_mean_std(returns=benchmark_returns, return_type=return_type)[
+                        0] * 100)  # Calculate average daily
             # return
             metrics['benchmark_annual_return'] = "%f%%" % (
                     self.calculate_annualized_mean_std(returns=benchmark_returns, return_type=return_type)[0] * 100)
@@ -122,13 +124,14 @@ class StatisticsClass(object):
             # Volatility
             metrics['benchmark_daily_volatility'] = self.calculate_daily_mean_std(benchmark_returns, return_type)[1]
             metrics['benchmark_annualized_volatility'] = \
-            self.calculate_annualized_mean_std(benchmark_returns, return_type)[1]
+                self.calculate_annualized_mean_std(benchmark_returns, return_type)[1]
 
-
-            alpha_beta_list = self.calculate_alpha_beta(returns=returns,return_type=return_type,benchmark_returns=benchmark_returns)
+            alpha_beta_list = self.calculate_alpha_beta(returns=returns, return_type=return_type,
+                                                        benchmark_returns=benchmark_returns)
             metrics['alpha'] = alpha_beta_list[0]
             metrics['beta'] = alpha_beta_list[1]
-            corr_p_list = self.calculate_corr(returns=returns, return_type=return_type,benchmark_returns=benchmark_returns)
+            corr_p_list = self.calculate_corr(returns=returns, return_type=return_type,
+                                              benchmark_returns=benchmark_returns)
             metrics['correlation_coefficient'] = corr_p_list[0]
             metrics['p'] = corr_p_list[1]
         # Summary

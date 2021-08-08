@@ -2,9 +2,7 @@ import abc
 
 import numpy as np
 import pandas as pd
-import rqdatac as rq
 from pylab import plt
-from rqdatac import *
 
 from Statistics import StatisticsClass
 
@@ -35,7 +33,7 @@ class VecBacktest(metaclass=abc.ABCMeta):
 
     def strategy_return_generator(self):
 
-        self.results_df['strategy'] = self.results_df['positions'].shift(1)*self.results_df['returns']
+        self.results_df['strategy'] = self.results_df['positions'].shift(1) * self.results_df['returns']
 
     def return_generator(self):
         """
@@ -49,7 +47,7 @@ class VecBacktest(metaclass=abc.ABCMeta):
             self.total_return = np.prod(self.results_df['returns']) - 1
             self.total_strategy_return = np.prod(self.results_df['strategy']) - 1
         elif self.returns_type == "log":
-            self.results_df['cum_returns']= self.results_df['returns'].cumsum().apply(np.exp)
+            self.results_df['cum_returns'] = self.results_df['returns'].cumsum().apply(np.exp)
             self.results_df['cum_strategy'] = (self.results_df['strategy'] + 1).cumprod()
             self.total_return = np.exp(self.results_df['returns'].sum()) - 1
             self.total_strategy_return = np.exp(self.results_df['strategy'].sum()) - 1
@@ -61,9 +59,11 @@ class VecBacktest(metaclass=abc.ABCMeta):
 
     def statistics(self):
         Stat = StatisticsClass()
-        metric_frame = Stat.calculate_metrics(returns=self.results_df['strategy'], benchmark_returns=self.results_df['returns'],return_type=self.returns_type)
-        metric_frame['total_strategy_return'] = "%f%%" % ( self.total_strategy_return*100)
-        metric_frame['total_benchmark_return'] = "%f%%" % (self.total_return *100)
+        metric_frame = Stat.calculate_metrics(returns=self.results_df['strategy'],
+                                              benchmark_returns=self.results_df['returns'],
+                                              return_type=self.returns_type)
+        metric_frame['total_strategy_return'] = "%f%%" % (self.total_strategy_return * 100)
+        metric_frame['total_benchmark_return'] = "%f%%" % (self.total_return * 100)
         metric_frame = pd.DataFrame.from_dict(metric_frame, orient="index")
         return metric_frame
 
@@ -86,5 +86,5 @@ class VecBacktest(metaclass=abc.ABCMeta):
             print('No results to plot yet. Run a strategy.')
         else:
             title = 'PnL'
-            self.results_df[['cum_returns', 'cum_strategy']].plot(title = title, legend = True,figsize=(10, 6))
+            self.results_df[['cum_returns', 'cum_strategy']].plot(title=title, legend=True, figsize=(10, 6))
             plt.show()
