@@ -18,6 +18,9 @@ class VecBacktest(metaclass=abc.ABCMeta):
         self._data_preprocessor()
 
     def _data_preprocessor(self):
+        """
+        Calculate different type of stock returns.
+        """
         if self.returns_type == "normal":
             self.results_df = self.price_info['close'].pct_change()
         elif self.returns_type == "log":
@@ -32,13 +35,14 @@ class VecBacktest(metaclass=abc.ABCMeta):
         self.results_df.columns = ['returns']
 
     def strategy_return_generator(self):
-
+        """
+        Calculate the return of a strategy.
+        """
         self.results_df['strategy'] = self.results_df['positions'].shift(1) * self.results_df['returns']
 
     def return_generator(self):
         """
         Generate stock returns and strategy returns
-        :return:
         """
         self.results_df.dropna(inplace=True)
         if self.returns_type == "normal":
@@ -58,6 +62,10 @@ class VecBacktest(metaclass=abc.ABCMeta):
                 print(error)
 
     def statistics(self):
+        """
+        Calculate statistics of a strategy
+        :return: metric_frame::pd.DataFrame
+        """
         Stat = StatisticsClass()
         metric_frame = Stat.calculate_metrics(returns=self.results_df['strategy'],
                                               benchmark_returns=self.results_df['returns'],
@@ -75,13 +83,12 @@ class VecBacktest(metaclass=abc.ABCMeta):
         # plt.subplot(312)
         # plt.title('Cumulative Return')
         # self.results_df['cum_returns'].plot(figsize=(10, 6))
-        :return:
         """
 
         """
-                Plots the cumulative performance of the trading strategy compared to the symbol.
-                :return:
-                """
+        Plots the cumulative performance of the trading strategy compared to the symbol.
+        :return:
+        """
         if self.results_df[['cum_returns', 'cum_strategy']] is None:
             print('No results to plot yet. Run a strategy.')
         else:

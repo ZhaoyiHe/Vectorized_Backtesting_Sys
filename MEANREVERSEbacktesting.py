@@ -14,14 +14,13 @@ class MRBacktest(VecBacktest):
             self.SMA = SMA
             self.results_df['SMA_%d' % SMA] = IndicatorCalculator.SMA_generator(prices=self.price_info['close'],
                                                                                 period=SMA)
-            # self.results_df['SMA_%d'%SMA_short] = self.results_df['returns'].rolling(SMA_short).mean()
 
         if threshold is not None:
             self.threshold = threshold
-
-            # self.results_df['SMA_%d' % SMA_long] = self.results_df['returns'].rolling(SMA_long).mean()
-
     def strategy_generator(self):
+        """
+        Calculate strategy positions.
+        """
         self.results_df['distance'] = self.price_info['close'] - self.results_df['SMA_%d' % self.SMA]
         self.results_df.dropna(inplace=True)
         self.results_df['positions'] = np.where(self.results_df['distance'] > self.threshold, -1, np.nan)
@@ -46,10 +45,7 @@ class MRBacktest(VecBacktest):
 
     def optimize_parameters(self, SMA_range, threshold_range):
         """
-        Finds global maximum given the SMA parameter ranges.
-
-        tuples of the from (start, end ,step size)
-        :return:
+        Finds global maximum given the SMA parameter and threshold ranges.
         """
         opt = brute(self.update_and_run, (SMA_range, threshold_range), finish=None)
         print(opt)

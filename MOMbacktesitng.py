@@ -12,6 +12,9 @@ class MOMBacktest(VecBacktest):
             self.momentum = momentum
 
     def strategy_generator(self):
+        """
+        Calculate strategy positions.
+        """
         self.results_df['positions'] = np.sign(self.results_df['returns'].rolling(self.momentum).mean())
 
         self.results_df['positions'] = self.results_df['positions'].ffill().fillna(0)
@@ -23,7 +26,7 @@ class MOMBacktest(VecBacktest):
         self.return_generator()
 
     def update_and_run(self, momentum):
-        """Update SMA parameters and returns negative absolute performance.
+        """Update momentum parameters and returns negative absolute performance.
         (for minimization algorithm).
         """
 
@@ -32,9 +35,7 @@ class MOMBacktest(VecBacktest):
 
     def optimize_parameters(self, momentum_lb, momentum_ub):
         """
-        Finds global maximum given the SMA parameter ranges.
-
-        :return:
+        Finds global maximum given the momentum parameter range.
         """
         opt = fminbound(self.update_and_run, momentum_lb, momentum_ub)
         print(opt)

@@ -23,6 +23,9 @@ class SMABacktest(VecBacktest):
             # self.results_df['SMA_%d' % SMA_long] = self.results_df['returns'].rolling(SMA_long).mean()
 
     def strategy_generator(self):
+        """
+        Calculate strategy positions.
+        """
         self.results_df['positions'] = np.where(
             self.results_df['SMA_%d' % self.SMA_short] > self.results_df['SMA_%d' % self.SMA_long], 1, -1)
         self.results_df['positions'] = self.results_df['positions'].ffill().fillna(0)
@@ -45,7 +48,7 @@ class SMABacktest(VecBacktest):
         """
 
         self.run_strategy(int(SMA[0]), int(SMA[1]))
-        return -self.total_strategy_return  ######
+        return -self.total_strategy_return
 
     def optimize_parameters(self, SMA_short_range, SMA_long_range):
         """
